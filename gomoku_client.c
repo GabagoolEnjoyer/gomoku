@@ -25,11 +25,6 @@ void printChessboard() {
     }
 }
 
-void clear_input_buffer() {
-    int c;
-    while ((c = getchar()) != '\n' && c != EOF);
-}
-
 int main(int argc, char *argv[]) {
     int sock = 0;
     struct sockaddr_in serv_addr;
@@ -57,6 +52,7 @@ int main(int argc, char *argv[]) {
         return -1;
     }
 
+    // Get player number
     recv(sock, &player_number, sizeof(player_number), 0);
     printf("You are Player %d\n", player_number);
     printChessboard();
@@ -66,35 +62,11 @@ int main(int argc, char *argv[]) {
         recv(sock, buffer, sizeof(buffer), 0);
 
         if(strcmp(buffer, "YOUR_TURN") == 0) {
-            int x, y, input_valid;
-            do {
-                printf("Your turn (row column, 1-%d): ", N);
-                input_valid = scanf("%d %d", &x, &y);
-                clear_input_buffer();
-
-                if(input_valid != 2) {
-                    printf("Invalid input! Please enter two numbers.\n");
-                    continue;
-                }
-
-                if(x < 1 || x > N || y < 1 || y > N) {
-                    printf("Coordinates must be between 1 and %d!\n", N);
-                    input_valid = 0;
-                } else if(chessboard[x][y] != 0) {
-                    printf("Position (%d, %d) is occupied!\n", x, y);
-                    input_valid = 0;
-                }
-            } while(input_valid != 2);
-
+            int x, y;
+            printf("Your turn (row column): ");
+            scanf("%d %d", &x, &y);
             send(sock, &x, sizeof(x), 0);
             send(sock, &y, sizeof(y), 0);
-
-            // Wait for server confirmation
-            recv(sock, buffer, sizeof(buffer), 0);
-            if(strcmp(buffer, "INVALID") == 0) {
-                printf("Server rejected move. Try again.\n");
-                continue;
-            }
         } 
         else if(strcmp(buffer, "MOVE") == 0) {
             int x, y, player;
@@ -110,12 +82,8 @@ int main(int argc, char *argv[]) {
             printf("Player %d wins!\n", winner);
             
             int choice;
-            do {
-                printf("Play again? (1=Yes, 0=No): ");
-                scanf("%d", &choice);
-                clear_input_buffer();
-            } while(choice != 0 && choice != 1);
-            
+            printf("Play again? (1=Yes, 0=No): ");
+            scanf("%d", &choice);
             send(sock, &choice, sizeof(choice), 0);
             
             if(choice) {
