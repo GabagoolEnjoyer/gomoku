@@ -1,0 +1,2 @@
+# gomoku
+gomoku C implementation
