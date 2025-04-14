@@ -64,7 +64,16 @@ int main(int argc, char *argv[]) {
         if(strcmp(buffer, "YOUR_TURN") == 0) {
             int x, y;
             printf("Your turn (row column): ");
-            scanf("%d %d", &x, &y);
+            while (1) {
+                if (scanf("%d %d", &x, &y) == 2) {
+                    if (x >= 0 && x <= 15 && y >= 0 && y <= 15) {
+                        if (chessboard[x][y] == 0) {
+                            break;
+                        }
+                    }
+                }
+                printf("Incorrect input. \n");
+            }
             send(sock, &x, sizeof(x), 0);
             send(sock, &y, sizeof(y), 0);
         } 
