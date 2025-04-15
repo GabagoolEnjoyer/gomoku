@@ -12,3 +12,4 @@
 int judge(int x, int y);
 void handle_game(int current_player);
 void print_chessboard();
+void check_field_fullness();
