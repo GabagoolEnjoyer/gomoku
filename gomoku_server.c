@@ -1,16 +1,9 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-
-#define N 15
-#define PORT 8080
+#include "gomoku.h"
 
 int chessboard[N + 1][N + 1] = {0};
 int player_sockets[2] = {0};
+
+/*Check readme*/
 
 int judge(int x, int y) {
     const int step[4][2] = {{-1,0}, {0,-1}, {1,1}, {1,0}};
@@ -33,13 +26,8 @@ int judge(int x, int y) {
     return 0;
 }
 
-void reset_game() {
-    memset(chessboard, 0, sizeof(chessboard));
-}
-
 void handle_game(int current_player) {
     int x, y, winner = 0;
-    int other_player = current_player ^ 1; // Toggle between 0 and 1
 
     // Notify current player to move
     send(player_sockets[current_player], "YOUR_TURN", 10, 0);
@@ -116,22 +104,11 @@ int main() {
             handle_game(current_player);
             
             // Check for winner
-            if(chessboard[0][0] == -1) { // Simple win flag
-                int responses[2];
-                for(int i = 0; i < 2; i++) {
-                    recv(player_sockets[i], &responses[i], sizeof(responses[i]), 0);
-                }
-
-                if(responses[0] && responses[1]) {
-                    reset_game();
-                    for(int i = 0; i < 2; i++) {
-                        send(player_sockets[i], "RESTART", 8, 0);
-                    }
-                } else {
-                    printf("Game ending...\n");
-                    close(server_fd);
-                    exit(0);
-                }
+            if(chessboard[0][0] == -1) {
+                printf("Game ending...\n");
+                sleep(5);
+                close(server_fd);
+                exit(0);
             }
         }
     }

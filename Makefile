@@ -1,15 +1,12 @@
-all:
-	gcc gomoku_server.c -o server
-	gcc gomoku_client.c -o client
+all: server client
+
+server: gomoku_server.c
+	gcc -Wall -Werror -Wextra gomoku_server.c -o server
+
+client:
+	gcc -Wall -Werror -Wextra gomoku_client.c -o client
 
 clean:
 	rm -f server client
 
-server:
-	./server
-
-client:
-	./client 127.0.0.1 8080
-
-clear_80:
-	sudo fuser -k 80/tcp
+rebuild: clean all

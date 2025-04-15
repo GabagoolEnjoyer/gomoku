@@ -1,17 +1,11 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <unistd.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-
-#define N 15
+#include "gomoku.h"
 
 int chessboard[N + 1][N + 1] = {0};
 int player_number;
 
-void printChessboard() {
+/*Check readme*/
+
+void print_chessboard() {
     system("clear");
     for(int i = 0; i <= N; i++) {
         for(int j = 0; j <= N; j++) {
@@ -54,8 +48,10 @@ int main(int argc, char *argv[]) {
 
     // Get player number
     recv(sock, &player_number, sizeof(player_number), 0);
+    system("clear");
     printf("You are Player %d\n", player_number);
-    printChessboard();
+
+    print_chessboard();
 
     while(1) {
         char buffer[10] = {0};
@@ -66,7 +62,7 @@ int main(int argc, char *argv[]) {
             printf("Your turn (row column): ");
             while (1) {
                 if (scanf("%d %d", &x, &y) == 2) {
-                    if (x >= 0 && x <= 15 && y >= 0 && y <= 15) {
+                    if (x > 0 && x <= 15 && y > 0 && y <= 15) {
                         if (chessboard[x][y] == 0) {
                             break;
                         }
@@ -83,24 +79,14 @@ int main(int argc, char *argv[]) {
             recv(sock, &y, sizeof(y), 0);
             recv(sock, &player, sizeof(player), 0);
             chessboard[x][y] = player + 1;
-            printChessboard();
+            print_chessboard();
         } 
         else if(strcmp(buffer, "GAME_OVER") == 0) {
             int winner;
             recv(sock, &winner, sizeof(winner), 0);
             printf("Player %d wins!\n", winner);
-            
-            int choice;
-            printf("Play again? (1=Yes, 0=No): ");
-            scanf("%d", &choice);
-            send(sock, &choice, sizeof(choice), 0);
-            
-            if(choice) {
-                memset(chessboard, 0, sizeof(chessboard));
-                printChessboard();
-            } else {
-                break;
-            }
+            sleep(4);
+            break;
         }
     }
 
