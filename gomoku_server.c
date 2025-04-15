@@ -3,8 +3,6 @@
 int chessboard[N + 1][N + 1] = {0};
 int player_sockets[2] = {0};
 
-/*Check readme*/
-
 int judge(int x, int y) {
     const int step[4][2] = {{-1,0}, {0,-1}, {1,1}, {1,0}};
     for(int i = 0; i < 4; ++i) {
@@ -27,7 +25,7 @@ int judge(int x, int y) {
 }
 
 void handle_game(int current_player) {
-    int x, y, winner = 0;
+    int x, y, winner = 0, quit_flag = 0;
 
     // Notify current player to move
     send(player_sockets[current_player], "YOUR_TURN", 10, 0);
@@ -36,12 +34,22 @@ void handle_game(int current_player) {
     recv(player_sockets[current_player], &x, sizeof(x), 0);
     recv(player_sockets[current_player], &y, sizeof(y), 0);
 
-    // Update board
-    chessboard[x][y] = current_player + 1;
+    if (x == -1 && y == -1) {
+        quit_flag = 1;
+        winner = -1;
+        x = 0;
+        y = 0;
+        chessboard[0][0] = -1;
+    }
 
-    // Check win
-    if(judge(x, y)) {
-        winner = current_player + 1;
+    if (!quit_flag) {
+        // Update board
+        chessboard[x][y] = current_player + 1;
+
+        // Check win
+        if(judge(x, y)) {
+            winner = current_player + 1;
+        }
     }
 
     // Send update to both players
@@ -52,6 +60,10 @@ void handle_game(int current_player) {
         send(player_sockets[i], &y, sizeof(y), 0);
         send(player_sockets[i], &current_player, sizeof(current_player), 0);
         if(winner) {
+            send(player_sockets[i], "GAME_OVER", 10, 0);
+            send(player_sockets[i], &winner, sizeof(winner), 0);
+        }
+        if (quit_flag) {
             send(player_sockets[i], "GAME_OVER", 10, 0);
             send(player_sockets[i], &winner, sizeof(winner), 0);
         }
@@ -106,7 +118,7 @@ int main() {
             // Check for winner
             if(chessboard[0][0] == -1) {
                 printf("Game ending...\n");
-                sleep(5);
+                sleep(6);
                 close(server_fd);
                 exit(0);
             }

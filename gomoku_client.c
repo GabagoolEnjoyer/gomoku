@@ -2,11 +2,15 @@
 
 int chessboard[N + 1][N + 1] = {0};
 int player_number;
-
-/*Check readme*/
+int first_turn_flag = 2;
 
 void print_chessboard() {
     system("clear");
+    if (first_turn_flag > 0) {
+        printf("Controls: Input row and column from 1 to 15 with a space inbetween\n");
+        printf("Hint: Input -1 -1 to quit\n");
+        first_turn_flag = first_turn_flag == 2? 1 : 0;
+    }
     for(int i = 0; i <= N; i++) {
         for(int j = 0; j <= N; j++) {
             if(i == 0) printf("%3d", j);
@@ -51,6 +55,7 @@ int main(int argc, char *argv[]) {
     system("clear");
     printf("You are Player %d\n", player_number);
 
+
     print_chessboard();
 
     while(1) {
@@ -59,9 +64,12 @@ int main(int argc, char *argv[]) {
 
         if(strcmp(buffer, "YOUR_TURN") == 0) {
             int x, y;
-            printf("Your turn (row column): ");
+            printf("Your turn: ");
             while (1) {
                 if (scanf("%d %d", &x, &y) == 2) {
+                    if (x == -1 && y == -1) {
+                        break;
+                    }
                     if (x > 0 && x <= 15 && y > 0 && y <= 15) {
                         if (chessboard[x][y] == 0) {
                             break;
@@ -84,7 +92,13 @@ int main(int argc, char *argv[]) {
         else if(strcmp(buffer, "GAME_OVER") == 0) {
             int winner;
             recv(sock, &winner, sizeof(winner), 0);
-            printf("Player %d wins!\n", winner);
+            if (winner != -1) {
+                printf("Player %d wins!\n", winner);
+            }
+            else {
+                printf("Game stopped: player disconnected\n");
+            }
+            
             sleep(4);
             break;
         }
