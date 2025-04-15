@@ -3,7 +3,7 @@ all: server client
 server: gomoku_server.c
 	gcc -Wall -Werror -Wextra gomoku_server.c -o server
 
-client:
+client: gomoku_client.c
 	gcc -Wall -Werror -Wextra gomoku_client.c -o client
 
 clean:
